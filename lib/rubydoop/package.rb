@@ -129,7 +129,10 @@ module Rubydoop
             zipfileset dir: rubydoop_lib, excludes: '*.jar', prefix: "gems/rubydoop-#{Rubydoop::VERSION}/lib"
 
             gem_specs.each do |gem_spec|
-              zipfileset dir: gem_spec.full_gem_path, prefix: "gems/#{File.basename(gem_spec.full_gem_path)}"
+              default_gem = gem_spec.respond_to?(:default_gem?) && gem_spec.default_gem?
+              if !default_gem || File.directory?(gem_spec.full_gem_path)
+                zipfileset dir: gem_spec.full_gem_path, prefix: "gems/#{File.basename(gem_spec.full_gem_path)}"
+              end
             end
 
             extra_jars.each do |extra_jar|
