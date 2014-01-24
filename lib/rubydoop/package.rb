@@ -149,9 +149,12 @@ module Rubydoop
       File.open(path, 'w') do |io|
         io.puts("$LOAD_PATH << 'gems/rubydoop-#{Rubydoop::VERSION}/lib'")
         @options[:gem_specs].each do |gem_spec|
-          gem_spec.require_paths.each do |path|
-            relative_path = File.join(File.basename(gem_spec.full_gem_path), path)
-            io.puts("$LOAD_PATH << 'gems/#{relative_path}'")
+          default_gem = gem_spec.respond_to?(:default_gem?) && gem_spec.default_gem?
+          if !default_gem || File.directory?(gem_spec.full_gem_path)
+            gem_spec.require_paths.each do |path|
+              relative_path = File.join(File.basename(gem_spec.full_gem_path), path)
+              io.puts("$LOAD_PATH << 'gems/#{relative_path}'")
+            end
           end
         end
       end
